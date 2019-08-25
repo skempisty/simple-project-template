@@ -10,7 +10,7 @@
 /build
 
 # misc
-.idea/workspace.xml
+.idea/*
 .DS_Store
 *.env
 

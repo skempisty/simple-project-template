@@ -10,12 +10,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //connect to the database
-// mongoose.connect(process.env.DB, { useNewUrlParser: true })
-//     .then(() => console.log(`Database connected successfully`))
-//     .catch(err => console.log(err));
+mongoose.connect(process.env.MONGODB_OREGON_URL, { useNewUrlParser: true })
+    .then((response) => {
+        console.log(`Database connected successfully`)
+        console.log(response.models);
+    })
+    .catch(err => console.log(err));
 
-//since mongoose promise is depreciated, we overide it with node's promise
-// mongoose.Promise = global.Promise;
+//since mongoose promise is depreciated, we override it with node's promise
+mongoose.Promise = global.Promise;
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
