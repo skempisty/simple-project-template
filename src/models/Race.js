@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-//create schema for Horse
-const HorseSchema = new Schema({
+//create schema for Race
+const RaceSchema = new Schema({
     name: {
         type: String,
         required: [true, 'The name field is required']
@@ -14,6 +14,6 @@ const HorseSchema = new Schema({
 });
 
 //create model for title
-const Horse = mongoose.model('Horse', HorseSchema, 'playground');
+const Race = mongoose.model('Race', RaceSchema, 'races');
 
-module.exports = Horse;
+module.exports = Race;
