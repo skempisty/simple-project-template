@@ -12,7 +12,7 @@ fs.readdirSync(__dirname + '/api/').forEach((filename) => {
 
     const name = basename(filename, '.js');
     function load() {
-        //console.log('loading ' + name + '...');
+        console.log('loading ' + name + '...');
         return require('./api/' + name);
     }
 

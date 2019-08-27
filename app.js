@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 //connect to the database
 mongoose.connect(process.env.MONGODB_OREGON_URL, { useNewUrlParser: true })
     .then((response) => {
-        console.log(`Database connected successfully`)
+        console.log(`Database connected successfully`);
         console.log(response.models);
     })
     .catch(err => console.log(err));
