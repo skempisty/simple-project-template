@@ -1,10 +1,11 @@
+// require npm packages
 const express = require ('express');
 const router = express.Router();
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer-extra');
-const fetch = require('node-fetch');
-
-const Horse = require('../models/Horse');
+// require files
+const api = require('./apiDirector');
+const Horse = require('./models/Horse');
 
 // add stealth plugin and use defaults (all evasion techniques)
 const pluginStealth = require("puppeteer-extra-plugin-stealth")
@@ -12,7 +13,10 @@ puppeteer.use(pluginStealth());
 
 router.get('/crawlhorses', async (req, res) => {
 
-    // const url = 'https://www.equibase.com/Data.cfm/Stats/Horse/Year/Page?year=2019&page=3&sort=EARNINGS&dir=A&list=N&category=A&attribute_total=1024&set=full&race_breed_type=TB&_=1566757745074';
+    api.horses.get();
+    res.send("Hello bud");
+    return;
+
     const url = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
     const browser = await puppeteer.launch({ headless: false });
@@ -25,12 +29,12 @@ router.get('/crawlhorses', async (req, res) => {
     let html = await page.content();
 
     let $ = cheerio.load(html);
-    const horses = [];
+    let horses = [];
 
     $('table#data tbody tr').each(function(i, elem) {
         horses.push({
-            name: $(this).find('td.horse a:first-child').text(),
-            winPct: $(this).find('td.winpct').text()
+            horseName: $(this).find('td.horse a:first-child').text(),
+            winPercentage: $(this).find('td.winpct').text()
         });
     });
 
@@ -44,9 +48,7 @@ router.get('/crawlhorses', async (req, res) => {
         await page.click('div#Pagination ul a:last-child');
 
         // wait for next page number to be red
-
-        await page.waitFor(5000);
-        // await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${index}]`, { timeout: 10000 });
+        await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${index}]`, { timeout: 10000 });
 
         console.log("waiting on table");
         await page.waitForSelector('table#data', { timeout: 10000});
@@ -55,15 +57,19 @@ router.get('/crawlhorses', async (req, res) => {
 
         $ = cheerio.load(html);
 
+        let moreHorses = [];
+
         console.log("scrape page 2");
         $('table#data tbody tr').each(function(i, elem) {
-            horses.push({
-                name: $(this).find('td.horse a:first-child').text(),
-                winPct: $(this).find('td.winpct').text()
+            moreHorses.push({
+                horseName: $(this).find('td.horse a:first-child').text(),
+                winPercentage: $(this).find('td.winpct').text()
             });
         });
-        console.log(horses[horses.length - 1]);
 
+        console.log(moreHorses);
+        moreHorses.shift();
+        horses = horses.concat(moreHorses);
 
         index++;
     }
@@ -71,9 +77,7 @@ router.get('/crawlhorses', async (req, res) => {
     // console.log("HORSES", horses);
 
     // put horse data model into mongo
-    // Horse.create(horses)
-    //     .then(data => res.json(data))
-    //     .catch();
+    await Horse.create(horses);
 
     browser.close();
 
@@ -81,5 +85,3 @@ router.get('/crawlhorses', async (req, res) => {
 });
 
 module.exports = router;
-
-// https://www.equibase.com/Data.cfm/Stats/Horse/Year/Page?year=2019&page=3&sort=EARNINGS&dir=A&list=N&category=A&attribute_total=1024&set=full&race_breed_type=TB&_=1566757745074

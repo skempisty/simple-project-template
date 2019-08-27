@@ -64,7 +64,7 @@ const HorseSchema = new Schema({
         type: Date,
         required: true,
         default: Date.now
-    },
+    }
 });
 
 //create model for title
