@@ -1,13 +1,13 @@
 /**
- * @file api/horses.js
+ * @file api/horsesUtil.js
  */
 
 // require npm packages
-const cheerio = require('cheerio');
 const puppeteer = require('puppeteer-extra');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
 // require files
 const Horse = require('../models/Horse');
+const horsesUtil = require('../utils/horsesUtil');
 
 // add stealth plugin and use defaults (all evasion techniques)
 puppeteer.use(pluginStealth());
@@ -22,63 +22,28 @@ exports.scrapeHorses = async () => {
     const page = await browser.newPage();
     await page.goto(url);
 
-    // get first page data
-    await page.waitForSelector('table#data', { timeout: 10000});
-
-    let html = await page.content();
-
-    let $ = cheerio.load(html);
     let horses = [];
+    const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
+    horses = horses.concat(moreHorses);
 
-    $('table#data tbody tr').each(function() {
-        horses.push({
-            horseName: $(this).find('td.horse a:first-child').text(),
-            winPercentage: $(this).find('td.winpct').text()
-        });
-    });
-
-    console.log(horses[0]);
-
-    // get second page data
-
-    let index = 2;
-    while (index < 3) {
-        console.log("clicking second page");
+    let pageIndex = 2;
+    while (pageIndex < 3) {
+        // click next page btn
         await page.click('div#Pagination ul a:last-child');
-
         // wait for next page number to be red
-        await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${index}]`, { timeout: 10000 });
+        await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex}]`, { timeout: 10000 });
 
-        console.log("waiting on table");
-        await page.waitForSelector('table#data', { timeout: 10000});
-
-        html = await page.content();
-
-        $ = cheerio.load(html);
-
-        let moreHorses = [];
-
-        console.log("scrape page 2");
-        $('table#data tbody tr').each(function() {
-            moreHorses.push({
-                horseName: $(this).find('td.horse a:first-child').text(),
-                winPercentage: $(this).find('td.winpct').text()
-            });
-        });
-
-        console.log(moreHorses);
+        const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
+        // each page contains the last horse from the last page - remove that horse
         moreHorses.shift();
         horses = horses.concat(moreHorses);
 
-        index++;
+        pageIndex++;
     }
-
-    // console.log("HORSES", horses);
+    browser.close();
 
     // put horse data model into mongo
-    // await Horse.create(horses);
-
-    browser.close();
+    await Horse.create(horses);
 
     return horses;
 };

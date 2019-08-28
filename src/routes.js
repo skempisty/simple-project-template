@@ -2,7 +2,7 @@
 const express = require ('express');
 const router = express.Router();
 // require files
-const api = require('./apiDirector');
+const api = require('./apiDispatcher');
 
 router.get('/crawlhorses', async (req, res) => {
     const scrapedHorses = await api.horses.scrapeHorses();

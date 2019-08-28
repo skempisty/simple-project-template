@@ -5,15 +5,14 @@
 const basename = require('path').basename;
 const fs = require('fs');
 
-fs.readdirSync(__dirname + '/api/').forEach((filename) => {
+fs.readdirSync(`${__dirname}/api/`).forEach((filename) => {
     if (!/\.js$/.test(filename)) {
         return;
     }
 
     const name = basename(filename, '.js');
     function load() {
-        console.log('loading ' + name + '...');
-        return require('./api/' + name);
+        return require(`./api/${name}`);
     }
 
     exports.__defineGetter__(name, load);

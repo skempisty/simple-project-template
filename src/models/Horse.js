@@ -56,11 +56,7 @@ const HorseSchema = new Schema({
         type: String,
         required: true
     },
-    lastUpdatedEquibase: {
-        type: Date,
-        required: true
-    },
-    lastUpdatedHorsies: {
+    lastUpdated: {
         type: Date,
         required: true,
         default: Date.now
