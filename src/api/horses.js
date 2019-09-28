@@ -1,5 +1,5 @@
 /**
- * @file api/horsesUtil.js
+ * @file api/horses.js
  */
 
 // require npm packages
@@ -12,10 +12,8 @@ const horsesUtil = require('../utils/horsesUtil');
 // add stealth plugin and use defaults (all evasion techniques)
 puppeteer.use(pluginStealth());
 
-/**
- * value = object(username, email, password, user_agent (ua), type, rermote_ip (rip), fname, lname)
- */
-exports.scrapeHorses = async () => {
+
+exports.scrapeAllHorses = async () => {
     const url = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
     const browser = await puppeteer.launch({ headless: false });
