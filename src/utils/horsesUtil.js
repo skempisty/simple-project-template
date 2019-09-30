@@ -3,9 +3,9 @@ const cheerio = require('cheerio');
 exports.scrapeHorsesFromPage = async (page) => {
     await page.waitForSelector('table#data', { timeout: 10000});
 
-    let html = await page.content();
+    const html = await page.content();
 
-    let $ = cheerio.load(html);
+    const $ = cheerio.load(html);
     let moreHorses = [];
 
     $('table#data tbody tr').each(function() {
@@ -32,4 +32,14 @@ exports.scrapeHorsesFromPage = async (page) => {
     });
 
     return moreHorses;
+};
+
+exports.getMaxPageNum = async (page) => {
+    await page.waitForSelector('div#Pagination', { timeout: 10000});
+    const html = await page.content();
+    const $ = cheerio.load(html);
+
+    const numAnchors = $('div#Pagination ul a').get().length;
+
+    return $(`div#Pagination ul a:nth-child(${numAnchors})`).text();
 };

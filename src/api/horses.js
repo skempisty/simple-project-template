@@ -5,6 +5,7 @@
 // require npm packages
 const puppeteer = require('puppeteer-extra');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
+const cheerio = require('cheerio');
 // require files
 const Horse = require('../models/Horse');
 const horsesUtil = require('../utils/horsesUtil');
@@ -14,18 +15,22 @@ puppeteer.use(pluginStealth());
 
 
 exports.scrapeAllHorses = async () => {
-    const url = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
+    const equibaseUrl = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
+    // Start puppeteer and create master browser object
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
-    await page.goto(url);
+    await page.goto(equibaseUrl);
 
     let horses = [];
     const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
     horses = horses.concat(moreHorses);
 
+    // Get max pages
+    const maxPages = await horsesUtil.getMaxPageNum(page);
+
     let pageIndex = 2;
-    while (pageIndex < 3) {
+    while (pageIndex <= Number(maxPages)) {
         // click next page btn
         await page.click('div#Pagination ul a:last-child');
         // wait for next page number to be red
@@ -41,6 +46,8 @@ exports.scrapeAllHorses = async () => {
     browser.close();
 
     // put horse data model into mongo
+    // TODO: UPSERT instead of straight up create
+    // TODO: UPSERT after each page find instead of once at the end
     await Horse.create(horses);
 
     return horses;
