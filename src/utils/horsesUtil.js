@@ -1,7 +1,14 @@
 const cheerio = require('cheerio');
 
+const Horse = require('../models/Horse');
+
+
 exports.scrapeHorsesFromPage = async (page) => {
-    await page.waitForSelector('table#data', { timeout: 10000});
+
+    const tableDataEl = await page.$('table#data');
+    if (!tableDataEl) {
+        await page.waitForSelector('table#data', { timeout: 10000});
+    }
 
     const html = await page.content();
 
@@ -34,8 +41,38 @@ exports.scrapeHorsesFromPage = async (page) => {
     return moreHorses;
 };
 
+exports.upsertAll = (horsesArray, pageNum) => {
+
+    const promiseArray = [];
+
+    for (let i=0; i<horsesArray.length; i++) {
+        const query = { 'referenceNumber': horsesArray[i].referenceNumber };
+        const promise = new Promise((resolve, reject) => {
+            Horse.findOneAndUpdate(query, horsesArray[i], { upsert: true }, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        promiseArray.push(promise);
+    }
+
+    Promise.all(promiseArray).then(() => {
+        console.log(`page ${String(pageNum)} upsert complete..`);
+    }).catch((err) => {
+        console.log(err);
+    });
+};
+
 exports.getMaxPageNum = async (page) => {
-    await page.waitForSelector('div#Pagination', { timeout: 10000});
+
+    const paginationEl = await page.$('div#Pagination');
+    if (!paginationEl) {
+        await page.waitForSelector('div#Pagination', { timeout: 10000});
+    }
+
     const html = await page.content();
     const $ = cheerio.load(html);
 

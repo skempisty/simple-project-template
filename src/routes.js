@@ -10,8 +10,8 @@ const router = express.Router();
  * Route to scrape all horse data available in the "North American Thoroughbred Racing Starters - Horse" table at https://www.equibase.com/stats/View.cfm?tf=year&tb=horse
  */
 router.get('/horses/scrape', async (req, res) => {
-    const scrapedHorses = await api.horses.scrapeAllHorses();
-    res.send(scrapedHorses);
+    await api.horses.scrapeAllHorses();
+    res.send('done scraping horses!');
 });
 
 /**

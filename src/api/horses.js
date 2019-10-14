@@ -7,7 +7,6 @@ const puppeteer = require('puppeteer-extra');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
 
 // require files
-const Horse = require('../models/Horse');
 const horsesUtil = require('../utils/horsesUtil');
 const captchaUtil = require('../utils/captchaUtil');
 
@@ -16,6 +15,8 @@ puppeteer.use(pluginStealth());
 
 
 exports.scrapeAllHorses = async () => {
+    console.log('LET\'S CRAWL SOME HORSES!');
+
     const equibaseUrl = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
     // Start puppeteer and create master browser object
@@ -25,13 +26,13 @@ exports.scrapeAllHorses = async () => {
     const page = await browser.newPage();
     await page.goto(equibaseUrl);
 
+    /// solve captcha if found otherwise continue
     await captchaUtil.waitForSelectorOrCaptcha(page, 'table#data');
 
-    return;
-
-    let horses = [];
-    const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
-    horses = horses.concat(moreHorses);
+    // grab horses from 1st page
+    const someHorses = await horsesUtil.scrapeHorsesFromPage(page);
+    // upsert 1st page horses
+    horsesUtil.upsertAll(someHorses, 1);
 
     // Get max pages
     const maxPages = await horsesUtil.getMaxPageNum(page);
@@ -43,19 +44,16 @@ exports.scrapeAllHorses = async () => {
         // wait for next page number to be red
         await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex}]`, { timeout: 10000 });
 
+        // grab horses from page
         const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
         // each page contains the last horse from the last page - remove that horse
         moreHorses.shift();
-        horses = horses.concat(moreHorses);
+
+        // upsert horses from page
+        horsesUtil.upsertAll(moreHorses, pageIndex);
 
         pageIndex++;
     }
+
     browser.close();
-
-    // put horse data model into mongo
-    // TODO: UPSERT instead of straight up create
-    // TODO: UPSERT after each page find instead of once at the end
-    await Horse.create(horses);
-
-    return horses;
 };

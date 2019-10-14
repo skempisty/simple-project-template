@@ -9,7 +9,16 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //connect to the database
-mongoose.connect(process.env.MONGODB_OREGON_URL, { useNewUrlParser: true })
+mongoose.connect(process.env.MONGODB_OREGON_URL,
+    {
+        // required to silence deprecation warning in stdout (https://github.com/Automattic/mongoose/issues/8156)
+        useUnifiedTopology: true,
+        // required to silence deprecation warning in stdout (https://github.com/Automattic/mongoose/issues/6890)
+        useCreateIndex: true,
+        // last 2 required to silence other deprecation warnings
+        useFindAndModify: false,
+        useNewUrlParser: true
+    })
     .then((response) => {
         console.log(`Database connected successfully`);
     })

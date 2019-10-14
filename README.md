@@ -35,16 +35,16 @@ Find frontend at:
 
 `http://localhost:3000/`
 
-## Testing
+## Testing (TBD)
 
-### `npm test`
+`npm test`
 
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ## Production (TBD)
 
-### `npm run build`
+`npm run build`
 
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -56,7 +56,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Other junk
 
-### `npm run eject`
+`npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
