@@ -19,7 +19,9 @@ exports.scrapeAllHorses = async () => {
     const equibaseUrl = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
     // Start puppeteer and create master browser object
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch();
+    // TODO: uncomment below and comment above to watch puppeteer
+    // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.goto(equibaseUrl);
 
