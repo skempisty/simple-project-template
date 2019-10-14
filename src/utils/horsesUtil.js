@@ -1,14 +1,12 @@
 const cheerio = require('cheerio');
 
 const Horse = require('../models/Horse');
+const puppeteerUtil = require('./puppeteerUtil');
 
 
 exports.scrapeHorsesFromPage = async (page) => {
 
-    const tableDataEl = await page.$('table#data');
-    if (!tableDataEl) {
-        await page.waitForSelector('table#data', { timeout: 10000});
-    }
+    await puppeteerUtil.ensureExists(page, 'table#data');
 
     const html = await page.content();
 
@@ -68,11 +66,7 @@ exports.upsertAll = (horsesArray, pageNum) => {
 
 exports.getMaxPageNum = async (page) => {
 
-    const paginationEl = await page.$('div#Pagination ul a');
-
-    if (!paginationEl) {
-        await page.waitForSelector('div#Pagination ul a', { timeout: 10000});
-    }
+    await puppeteerUtil.ensureExists(page, 'div#Pagination ul a');
 
     const html = await page.content();
     const $ = cheerio.load(html);
