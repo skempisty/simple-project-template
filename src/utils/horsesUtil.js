@@ -68,9 +68,10 @@ exports.upsertAll = (horsesArray, pageNum) => {
 
 exports.getMaxPageNum = async (page) => {
 
-    const paginationEl = await page.$('div#Pagination');
+    const paginationEl = await page.$('div#Pagination ul a');
+
     if (!paginationEl) {
-        await page.waitForSelector('div#Pagination', { timeout: 10000});
+        await page.waitForSelector('div#Pagination ul a', { timeout: 10000});
     }
 
     const html = await page.content();

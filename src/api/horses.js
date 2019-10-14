@@ -36,6 +36,7 @@ exports.scrapeAllHorses = async () => {
 
     // Get max pages
     const maxPages = await horsesUtil.getMaxPageNum(page);
+    console.log(`${maxPages} pages to crawl`);
 
     let pageIndex = 2;
     while (pageIndex <= Number(maxPages)) {
