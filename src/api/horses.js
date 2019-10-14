@@ -5,10 +5,11 @@
 // require npm packages
 const puppeteer = require('puppeteer-extra');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
-const cheerio = require('cheerio');
+
 // require files
 const Horse = require('../models/Horse');
 const horsesUtil = require('../utils/horsesUtil');
+const captchaUtil = require('../utils/captchaUtil');
 
 // add stealth plugin and use defaults (all evasion techniques)
 puppeteer.use(pluginStealth());
@@ -21,6 +22,10 @@ exports.scrapeAllHorses = async () => {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.goto(equibaseUrl);
+
+    await captchaUtil.waitForSelectorOrCaptcha(page, 'table#data');
+
+    return;
 
     let horses = [];
     const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);

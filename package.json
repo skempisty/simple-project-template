@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "start-watch": "nodemon app.js",
-    "dev": "concurrently \"yarn run start-watch\" \"cd client && yarn start\""
+    "dev": "concurrently \"yarn run start-watch\" \"cd client && yarn start\"",
+    "postinstall": "chmod +x scripts/python_init.sh && source scripts/python_init.sh"
   },
   "author": "Stephen Kempisty",
   "license": "ISC",
@@ -14,7 +15,6 @@
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
     "mongoose": "^5.7.1",
     "node-fetch": "^2.6.0",
     "puppeteer": "^1.20.0",

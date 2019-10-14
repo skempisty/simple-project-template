@@ -5,7 +5,7 @@ import numpy as np
 PIXELS_EXTENSION = 10
 
 
-class PuzleSolver:
+class PuzzleSolver:
     def __init__(self, piece_path, background_path):
         self.piece_path = piece_path
         self.background_path = background_path
