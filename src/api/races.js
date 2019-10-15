@@ -5,10 +5,10 @@
 // require npm packages
 const puppeteer = require('puppeteer-extra');
 const pluginStealth = require("puppeteer-extra-plugin-stealth");
-const cheerio = require('cheerio');
+
 // require files
-const Race = require('../models/Race');
 const racesUtil = require('../utils/racesUtil');
+const captchaUtil = require('../utils/captchaUtil');
 
 // add stealth plugin and use defaults (all evasion techniques)
 puppeteer.use(pluginStealth());
@@ -17,43 +17,27 @@ puppeteer.use(pluginStealth());
 exports.scrapeAllRaces = async () => {};
 
 exports.scrapeRacesFromHorse = async (referenceNumber) => {
-    const url = `https://www.equibase.com/profiles/Results.cfm?type=Horse&refno=${referenceNumber}&registry=T&rbt=TB`;
+    console.log(`LET\'S CRAWL RACES FOR HORSE ${referenceNumber}!`);
 
-    const browser = await puppeteer.launch({ headless: false });
+    const equibaseUrl = `https://www.equibase.com/profiles/Results.cfm?type=Horse&refno=${referenceNumber}&registry=T&rbt=TB`;
+
+    // Start puppeteer and create master browser object
+    const browser = await puppeteer.launch();
+    // TODO: uncomment below and comment above to watch puppeteer
+    // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
-    await page.goto(url);
+    await page.goto(equibaseUrl);
 
-    await page.waitFor(5000)
-    await page.waitForSelector('a#Hresults', { timeout: 30000});
-    await page.click('a#Hresults');
-    await page.waitFor(2000)
+    /// solve captcha if found otherwise continue
+    await captchaUtil.waitForSelectorOrCaptcha(page, 'a#Hresults');
 
-    await page.waitForSelector('table.results', { timeout: 10000});
-
-    let html = await page.content();
-
-    let $ = cheerio.load(html);
-    const races = [];
-
-    $('table.results tbody tr').each(function() {
-        races.push({
-            referenceNumber: referenceNumber,
-            trackName: $(this).find('td.track a').text(),
-            date: $(this).find('td.date').text(),
-            raceNumber: $(this).find('td.race').text(),
-            raceType: $(this).find('td.type a').text(),
-            finishPlace: $(this).find('td.finish').text(),
-            speedFigure: $(this).find('td.speedFigure').text()
-        });
-    });
-
-    // TODO: replace above with below
-    // const races = await racesUtil.scrapeRacesFromHorse();
+    const races = await racesUtil.scrapeRacesFromPage(page);
+    // assign proper horse reference number to each race object
+    races.forEach(race => race.referenceNumber = referenceNumber);
 
     browser.close();
 
-    // upsert race data
-    // await Race.create(races);
+    racesUtil.upsertAll(races);
 
     return races;
 };

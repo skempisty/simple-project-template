@@ -74,7 +74,7 @@ solveCaptcha = async (page) => {
 };
 
 decodeBase64Image = (dataString) => {
-    var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
         response = {};
 
     if (matches.length !== 3) {

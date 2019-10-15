@@ -60,7 +60,7 @@ exports.upsertAll = (horsesArray, pageNum) => {
     Promise.all(promiseArray).then(() => {
         console.log(`page ${String(pageNum)} upsert complete..`);
     }).catch((err) => {
-        console.log(err);
+        console.error(err);
     });
 };
 

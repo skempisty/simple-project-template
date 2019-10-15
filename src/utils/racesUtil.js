@@ -1,35 +1,61 @@
 const cheerio = require('cheerio');
 
-exports.scrapeRacesFromPage = async (page) => {
-    // await page.waitForSelector('table#data', { timeout: 10000});
-    //
-    // let html = await page.content();
-    //
-    // let $ = cheerio.load(html);
-    // let moreHorses = [];
-    //
-    // $('table#data tbody tr').each(function() {
-    //     // get horse referenceNumber from link
-    //     const href = $(this).find('td.horse a:first-child').attr('href');
-    //     const urlParams = new URLSearchParams(href);
-    //     const refNum = urlParams.get('refno');
-    //
-    //     moreHorses.push({
-    //         horseName: $(this).find('td.horse a:first-child').text(),
-    //         referenceNumber: refNum,
-    //         rank: $(this).find('td.rank').text(),
-    //         starts: $(this).find('td.starts').text(),
-    //         win: $(this).find('td.win').text(),
-    //         place: $(this).find('td.seconds').text(),
-    //         show: $(this).find('td.thirds').text(),
-    //         earnings: $(this).find('td.earnings').text(),
-    //         perStart: $(this).find('td.eps').text(),
-    //         winPercentage: $(this).find('td.winpct').text(),
-    //         topThree: $(this).find('td.top3').text(),
-    //         topThreePercentage: $(this).find('td.top3pct').text(),
-    //         speedFigure: $(this).find('td.speed').text()
-    //     });
-    // });
+const Race = require('../models/Race');
+const puppeteerUtil = require('./puppeteerUtil');
 
-    // return moreHorses;
+exports.scrapeRacesFromPage = async (page) => {
+
+    await puppeteerUtil.ensureExists(page, 'a#Hresults');
+
+    await page.click('a#Hresults');
+
+    await puppeteerUtil.ensureExists(page, 'table.results');
+
+    let html = await page.content();
+
+    let $ = cheerio.load(html);
+    const races = [];
+
+    $('table.results tbody tr').each(function() {
+        races.push({
+            trackName: $(this).find('td.track a').text(),
+            date: $(this).find('td.date').text(),
+            raceNumber: $(this).find('td.race').text().trim(),
+            raceType: $(this).find('td.type a').text(),
+            finishPlace: $(this).find('td.finish').text(),
+            speedFigure: $(this).find('td.speedFigure').text()
+        });
+    });
+
+    return races;
+};
+
+exports.upsertAll = (racesArray) => {
+
+    const promiseArray = [];
+
+    for (let i=0; i<racesArray.length; i++) {
+        const query = {
+            'referenceNumber': racesArray[i].referenceNumber,
+            'trackName': racesArray[i].trackName,
+            'date': racesArray[i].date,
+            'raceNumber': racesArray[i].raceNumber,
+        };
+        const promise = new Promise((resolve, reject) => {
+            Race.findOneAndUpdate(query, racesArray[i], { upsert: true }, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        promiseArray.push(promise);
+    }
+
+    Promise.all(promiseArray).then(() => {
+        console.log(`races upsert complete..`);
+    }).catch((err) => {
+        console.error(err);
+    });
 };

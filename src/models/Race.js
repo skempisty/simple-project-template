@@ -3,13 +3,30 @@ const Schema = mongoose.Schema;
 
 //create schema for Race
 const RaceSchema = new Schema({
-    name: {
+    referenceNumber: {
         type: String,
-        required: [true, 'The name field is required']
+        required: [true, 'The referenceNumber field is required']
     },
-    winPct: {
+    trackName: {
         type: String,
-        required: [true, 'The winPct is required']
+        required: [true, 'The trackName is required']
+    },
+    date: {
+        type: String,
+        required: [true, 'The date is required']
+    },
+    raceNumber: {
+        type: String,
+        required: [true, 'The raceNumber is required']
+    },
+    raceType: {
+        type: String
+    },
+    finishPlace: {
+        type: String
+    },
+    speedFigure: {
+        type: String
     }
 });
 
