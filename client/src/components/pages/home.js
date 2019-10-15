@@ -8,8 +8,8 @@ export default class Home extends React.Component {
         console.log(horses);
     }
 
-    static async crawlRacesFromHorse(referenceNumber) {
-        const races = await fetch(`${Constants.baseUrl}/api/races/scrape/${referenceNumber}`);
+    static async crawlAllRaces() {
+        const races = await fetch(`${Constants.baseUrl}/api/races/scrape`);
         console.log(races);
     }
 
@@ -22,7 +22,7 @@ export default class Home extends React.Component {
                         onClick={() => Home.crawlHorses()}
                     >Crawl Horses</button>
                     <button
-                        onClick={() => Home.crawlRacesFromHorse('9694770')}
+                        onClick={() => Home.crawlAllRaces()}
                     >Crawl Races</button>
                 </div>
             </div>

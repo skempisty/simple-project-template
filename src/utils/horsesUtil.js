@@ -75,3 +75,11 @@ exports.getMaxPageNum = async (page) => {
 
     return $(`div#Pagination ul a:nth-child(${numAnchors})`).text();
 };
+
+exports.getAllHorseIdentifiers = async () => {
+    try {
+        return await Horse.find({}, 'referenceNumber horseName');
+    } catch(err) {
+        console.error(err);
+    }
+};
