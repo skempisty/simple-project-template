@@ -32,7 +32,8 @@ exports.scrapeHorsesFromPage = async (page) => {
             winPercentage: $(this).find('td.winpct').text(),
             topThree: $(this).find('td.top3').text(),
             topThreePercentage: $(this).find('td.top3pct').text(),
-            speedFigure: $(this).find('td.speed').text()
+            speedFigure: $(this).find('td.speed').text(),
+            lastUpdated: Date.now()
         });
     });
 
@@ -44,9 +45,9 @@ exports.upsertAll = (horsesArray, pageNum) => {
     const promiseArray = [];
 
     for (let i=0; i<horsesArray.length; i++) {
-        const query = { 'referenceNumber': horsesArray[i].referenceNumber };
+        const query = { referenceNumber: horsesArray[i].referenceNumber };
         const promise = new Promise((resolve, reject) => {
-            Horse.findOneAndUpdate(query, horsesArray[i], { upsert: true }, (err) => {
+            Horse.updateOne(query, horsesArray[i], { upsert: true }, (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -78,7 +79,7 @@ exports.getMaxPageNum = async (page) => {
 
 exports.getAllHorseIdentifiers = async () => {
     try {
-        return await Horse.find({}, 'referenceNumber horseName');
+        return await Horse.find({}, 'referenceNumber horseName').sort( { lastTimeRaceScraped: 1 } );
     } catch(err) {
         console.error(err);
     }

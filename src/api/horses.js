@@ -35,7 +35,9 @@ exports.scrapeAllHorses = async () => {
     console.log(`${maxPages} pages to crawl`);
 
     let pageIndex = 1;
-    while (pageIndex <= Number(maxPages)) {
+    let horsesAllScraped = false;
+
+    while (!horsesAllScraped) {
         // grab horses from page
         const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
 
@@ -47,16 +49,19 @@ exports.scrapeAllHorses = async () => {
         // upsert horses from page
         horsesUtil.upsertAll(moreHorses, pageIndex);
 
-        if (pageIndex < maxPages) {
-            await puppeteerUtil.ensureExists(page, 'div#Pagination ul a:last-child');
+        await puppeteerUtil.ensureExists(page, 'div#Pagination ul a:last-child');
 
+        try {
             // click next page btn
             await page.click('div#Pagination ul a:last-child');
             // wait for next page number to be red
             await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex}]`, { timeout: 10000 });
-        }
 
-        pageIndex++;
+            pageIndex++;
+        } catch (error) {
+            console.log('end of the line!');
+            horsesAllScraped = true;
+        }
     }
 
     browser.close();

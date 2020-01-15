@@ -25,6 +25,19 @@ export default class Home extends React.Component {
                         onClick={() => Home.crawlAllRaces()}
                     >Crawl Races</button>
                 </div>
+
+                <div style={{
+                    position: 'fixed',
+                    top: '0',
+                    left: '0',
+                    height: '10em',
+                    width: '10em',
+                    margin: '1em 0 0 1em',
+                    background: 'url("horsies_logo.png")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }} />
             </div>
         )
     }

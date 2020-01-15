@@ -1,31 +1,44 @@
 const cheerio = require('cheerio');
 
 const Race = require('../models/Race');
+const Horse = require('../models/Horse');
 const puppeteerUtil = require('./puppeteerUtil');
 
 exports.scrapeRacesFromPage = async (page) => {
-
-    await puppeteerUtil.ensureExists(page, 'a#Hresults');
-
-    await page.click('a#Hresults');
-
-    await puppeteerUtil.ensureExists(page, 'table.results');
-
-    let html = await page.content();
-
-    let $ = cheerio.load(html);
+    let scrapeSuccess = false;
     const races = [];
 
-    $('table.results tbody tr').each(function() {
-        races.push({
-            trackName: $(this).find('td.track a').text(),
-            date: $(this).find('td.date').text(),
-            raceNumber: $(this).find('td.race').text().trim(),
-            raceType: $(this).find('td.type a').text(),
-            finishPlace: $(this).find('td.finish').text(),
-            speedFigure: $(this).find('td.speedFigure').text()
-        });
-    });
+    while (!scrapeSuccess) {
+        try {
+            await puppeteerUtil.ensureExists(page, 'a#Hresults');
+
+            await page.evaluate(() => document.querySelector('a#Hresults').click());
+
+            await puppeteerUtil.ensureExists(page, 'table.results');
+
+            let html = await page.content();
+
+            let $ = cheerio.load(html);
+
+            $('table.results tbody tr').each(function() {
+                races.push({
+                    trackName: $(this).find('td.track a').text(),
+                    date: $(this).find('td.date').text(),
+                    raceNumber: $(this).find('td.race').text().trim(),
+                    raceType: $(this).find('td.type a').text(),
+                    finishPlace: $(this).find('td.finish').text(),
+                    speedFigure: $(this).find('td.speedFigure').text()
+                });
+            });
+
+            scrapeSuccess = true;
+
+        } catch (error) {
+            console.log('races scrape failed - retrying..');
+
+            await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+        }
+    }
 
     return races;
 };
@@ -41,8 +54,9 @@ exports.upsertAll = (racesArray) => {
             'date': racesArray[i].date,
             'raceNumber': racesArray[i].raceNumber,
         };
+
         const promise = new Promise((resolve, reject) => {
-            Race.findOneAndUpdate(query, racesArray[i], { upsert: true }, (err) => {
+            Race.updateOne(query, racesArray[i], { upsert: true }, (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -54,7 +68,8 @@ exports.upsertAll = (racesArray) => {
     }
 
     Promise.all(promiseArray).then(() => {
-        console.log(`races upsert complete..`);
+        // update lastUpdated value for horse
+        Horse.updateOne({ referenceNumber: racesArray[0].referenceNumber }, { lastTimeRaceScraped: Date.now() }, () => {});
     }).catch((err) => {
         console.error(err);
     });

@@ -16,18 +16,26 @@
 
 #### Install dependencies
 
-- NodeJs
-- NPM (Node Package Manager)
-- Python (2 or 3)
+Best way to install dependencies is through `Homebrew` - a dependency package manager.
+
+Go to https://brew.sh/ for installation instructions
+
+- NodeJs `brew install node`
+- NPM `brew install npm`
+- Python (2 or 3) `brew install python`
 
 #### Run from terminal
 
-`npm install`
+1. `npm install`
 
 Run npm install first. This installs node modules, initializes a
 python venv connection, and installs python modules.
 
-`npm run dev`
+2. `source env/bin/activate`
+
+This activates the python environment required to execute python scripts used by horsies crawler.
+
+3. `npm run dev`
 
 Starts development server (port 5000) and frontend app (port 3000).
 

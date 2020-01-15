@@ -57,9 +57,14 @@ const HorseSchema = new Schema({
         required: true
     },
     lastUpdated: {
-        type: Date,
+        type: Number,
         required: true,
         default: Date.now
+    },
+    lastTimeRaceScraped: {
+        type: Number,
+        required: true,
+        default: 0
     }
 });
 

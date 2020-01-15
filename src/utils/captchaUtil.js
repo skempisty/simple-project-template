@@ -2,25 +2,40 @@ const spawn = require("child_process").spawn;
 const fs = require('fs');
 
 exports.waitForSelectorOrCaptcha = async (page, WAITFORSELECTOR) => {
-    try {
-        await page.waitForFunction((sel) => {
-            return document.querySelectorAll(sel).length;
-        }, { timeout: 120000 }, WAITFORSELECTOR + ', div.geetest_radar');
+    let captchaIsSolved = false;
 
-        const foundCaptcha = await page.$('div.geetest_radar');
+    while (!captchaIsSolved) {
+        try {
+            await page.waitForFunction((sel) => {
+                return document.querySelectorAll(sel).length;
+            }, { timeout: 20000 }, WAITFORSELECTOR + ', div.geetest_radar');
 
-        if (foundCaptcha) {
-            // stopped by captcha
-            console.log('Captcha detected! Solving...');
-            await solveCaptcha(page);
-            console.log('Captcha solved! Continuing...');
-        } else {
-            // otherwise continue..
-            console.log('No captcha detected. Continuing...');
+            const foundCaptcha = await page.$('div.geetest_radar');
+
+            if (foundCaptcha) {
+                // stopped by captcha
+                console.log('Captcha detected! Solving...');
+                await solveCaptcha(page);
+                console.log('Captcha solved! Continuing...');
+
+                // check for reset button
+                await page.waitFor(2000);
+                const resetBtn = await page.$('span.geetest_reset_tip_content');
+
+                if (resetBtn) {
+                    console.log('captcha network failure - reloading captcha..');
+                    await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+                } else {
+                    captchaIsSolved = true;
+                }
+            } else {
+                captchaIsSolved = true;
+            }
+        } catch(err) {
+            // didn't find either captcha or target - uh oh
+            // console.error('Could not find either target element - reloading!');
+            await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
         }
-    } catch(err) {
-        // didn't find either captcha or target - uh oh
-        console.error('Could not find either target element - aborting!');
     }
 };
 
@@ -46,10 +61,12 @@ solveCaptcha = async (page) => {
         console.log('captcha_lock.png written');
     });
 
-    const process = spawn('./scripts/solve_geetest_captcha.sh');
+    const childProcess = spawn('./scripts/solve_geetest_captcha.sh');
+
+    childProcess.stdout.pipe(process.stdout);
 
     let captchaSolution = null;
-    process.stdout.on('data',function(chunk) {
+    childProcess.stdout.on('data',function(chunk) {
         captchaSolution = chunk.toString();
     });
 
@@ -59,16 +76,24 @@ solveCaptcha = async (page) => {
     }
 
     const sliderHandleEl = await page.$('.geetest_slider_button');
-    const handle = await sliderHandleEl.boundingBox();
+    let handle = await sliderHandleEl.boundingBox();
 
     // move mouse to center of slider handle
     await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
     // start mouse drag
     await page.mouse.down();
     // move captchaSolution distance
-    await page.mouse.move(handle.x + handle.width / 2 + Number(captchaSolution), handle.y + handle.height / 2, { steps: 1 });
-    // wait 1 second to seem less automated
-    await page.waitFor(1000);
+    // await page.mouse.move(handle.x + handle.width / 2 + Number(captchaSolution), handle.y + handle.height / 2, { steps: 100 });
+    // wiggle right a bit to simulate overshoot
+    await page.mouse.move(handle.x + handle.width / 2 + Number(captchaSolution) + 15, handle.y + handle.height / 2, { steps: 50 });
+    // overshoot left a bit
+    handle = await sliderHandleEl.boundingBox();
+    await page.mouse.move(handle.x + handle.width / 2 - 35, handle.y + handle.height / 2, { steps: 60 });
+    // get back to solution distance but slightly off to not be exact
+    handle = await sliderHandleEl.boundingBox();
+    await page.mouse.move(handle.x + handle.width / 2 + 21, handle.y + handle.height / 2, { steps: 80 });
+    // wait some time before releasing to seem less automated
+    await page.waitFor(1217);
     // release mouse drag
     await page.mouse.up();
 };
