@@ -47,7 +47,7 @@ exports.upsertAll = (horsesArray, pageNum) => {
     for (let i=0; i<horsesArray.length; i++) {
         const query = { referenceNumber: horsesArray[i].referenceNumber };
         const promise = new Promise((resolve, reject) => {
-            Horse.updateOne(query, horsesArray[i], { upsert: true }, (err) => {
+            Horse.updateOne(query, horsesArray[i], { upsert: true, setDefaultsOnInsert: true }, (err) => {
                 if (err) {
                     reject(err);
                 } else {

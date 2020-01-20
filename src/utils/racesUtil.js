@@ -27,7 +27,8 @@ exports.scrapeRacesFromPage = async (page) => {
                     raceNumber: $(this).find('td.race').text().trim(),
                     raceType: $(this).find('td.type a').text(),
                     finishPlace: $(this).find('td.finish').text(),
-                    speedFigure: $(this).find('td.speedFigure').text()
+                    speedFigure: $(this).find('td.speedFigure').text(),
+                    lastUpdatedAt: Date.now()
                 });
             });
 
@@ -56,7 +57,7 @@ exports.upsertAll = (racesArray) => {
         };
 
         const promise = new Promise((resolve, reject) => {
-            Race.updateOne(query, racesArray[i], { upsert: true }, (err) => {
+            Race.updateOne(query, racesArray[i], { upsert: true, setDefaultsOnInsert: true }, (err) => {
                 if (err) {
                     reject(err);
                 } else {

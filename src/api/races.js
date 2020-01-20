@@ -4,6 +4,7 @@
 
 // require npm packages
 const puppeteer = require('puppeteer-extra');
+const moment = require('moment');
 
 // require files
 const racesUtil = require('../utils/racesUtil');
@@ -13,7 +14,9 @@ const puppeteerUtil = require('../utils/puppeteerUtil');
 
 
 exports.scrapeAllRaces = async () => {
-    console.log(`LET\'S CRAWL RACES FOR ALL HORSES`);
+    console.log('BEGIN GATHERING RACES');
+    // display scrape start datetime
+    console.log(moment().format('MMM Do h:mm a'));
 
     // Start puppeteer and create master browser object
     const browser = await puppeteer.launch();
@@ -21,7 +24,8 @@ exports.scrapeAllRaces = async () => {
     // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
-    await puppeteerUtil.preparePageForTests(page);
+    // engage anti bot detection countermeasures
+    await puppeteerUtil.preparePageForBotTests(page);
 
     // get all horses names, referenceNumbers
     const horseIdentifiers = await horsesUtil.getAllHorseIdentifiers();

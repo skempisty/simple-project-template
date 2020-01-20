@@ -4,19 +4,18 @@
 
 // require npm packages
 const puppeteer = require('puppeteer-extra');
-const pluginStealth = require("puppeteer-extra-plugin-stealth");
+const moment = require('moment');
 
 // require files
 const horsesUtil = require('../utils/horsesUtil');
 const captchaUtil = require('../utils/captchaUtil');
 const puppeteerUtil = require('../utils/puppeteerUtil');
 
-// add stealth plugin and use defaults (all evasion techniques)
-puppeteer.use(pluginStealth());
-
 
 exports.scrapeAllHorses = async () => {
-    console.log('LET\'S CRAWL SOME HORSES!');
+    console.log('BEGIN GATHERING HORSES');
+    // report scrape start timestamp
+    console.log(moment().format('MMM Do h:mm a'));
 
     const equibaseUrl = 'https://www.equibase.com/stats/View.cfm?tf=year&tb=horse';
 
@@ -25,6 +24,10 @@ exports.scrapeAllHorses = async () => {
     // TODO: uncomment below and comment above to watch puppeteer
     // const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
+
+    // engage anti bot detection countermeasures
+    await puppeteerUtil.preparePageForBotTests(page);
+
     await page.goto(equibaseUrl);
 
     /// solve captcha if found otherwise continue
@@ -59,7 +62,9 @@ exports.scrapeAllHorses = async () => {
 
             pageIndex++;
         } catch (error) {
-            console.log('end of the line!');
+            console.log('DONE GATHERING HORSES');
+            // report end of scrape timestamp
+            console.log(moment().format('MMM Do h:mm a'));
             horsesAllScraped = true;
         }
     }

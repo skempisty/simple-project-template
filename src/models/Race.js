@@ -27,6 +27,16 @@ const RaceSchema = new Schema({
     },
     speedFigure: {
         type: String
+    },
+    createdAt: {
+        type: Number,
+        required: true,
+        default: Date.now
+    },
+    lastUpdatedAt: {
+        type: Number,
+        required: true,
+        default: Date.now
     }
 });
 

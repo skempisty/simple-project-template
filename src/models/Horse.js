@@ -56,6 +56,11 @@ const HorseSchema = new Schema({
         type: String,
         required: true
     },
+    createdAt: {
+        type: Number,
+        required: true,
+        default: Date.now
+    },
     lastUpdated: {
         type: Number,
         required: true,
