@@ -22,12 +22,12 @@ exports.scrapeRacesFromPage = async (page) => {
 
             $('table.results tbody tr').each(function() {
                 races.push({
-                    trackName: $(this).find('td.track a').text(),
-                    date: $(this).find('td.date').text(),
+                    trackName: $(this).find('td.track a').text().trim(),
+                    date: $(this).find('td.date').text().trim(),
                     raceNumber: $(this).find('td.race').text().trim(),
-                    raceType: $(this).find('td.type a').text() || $(this).find('td.type').text(),
-                    finishPlace: $(this).find('td.finish').text(),
-                    speedFigure: $(this).find('td.speedFigure').text(),
+                    raceType: $(this).find('td.type a').text().trim() || $(this).find('td.type').text().trim(),
+                    finishPlace: $(this).find('td.finish').text().trim(),
+                    speedFigure: $(this).find('td.speedFigure').text().trim(),
                     lastUpdatedAt: Date.now()
                 });
             });
