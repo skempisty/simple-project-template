@@ -25,7 +25,7 @@ exports.scrapeRacesFromPage = async (page) => {
                     trackName: $(this).find('td.track a').text(),
                     date: $(this).find('td.date').text(),
                     raceNumber: $(this).find('td.race').text().trim(),
-                    raceType: $(this).find('td.type a').text(),
+                    raceType: $(this).find('td.type a').text() || $(this).find('td.type').text(),
                     finishPlace: $(this).find('td.finish').text(),
                     speedFigure: $(this).find('td.speedFigure').text(),
                     lastUpdatedAt: Date.now()
