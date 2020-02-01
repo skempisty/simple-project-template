@@ -74,7 +74,7 @@ exports.upsertAll = async (racesArray) => {
 
     // update lastUpdated value for horse
     await Horse.updateOne({ referenceNumber: racesArray[0].referenceNumber }, { lastTimeRaceScraped: Date.now() }, () => {});
-    await deleteDuplicates();
+    deleteDuplicates();
 };
 
 deleteDuplicates = async () => {
@@ -98,7 +98,7 @@ deleteDuplicates = async () => {
                 'count': { '$gt': 1 }
             }
         }
-    ]);
+    ]).allowDiskUse(true);
 
     if (matchingSets.length) {
         const matchingRecordCount = getMatchingRacesNum(matchingSets);
