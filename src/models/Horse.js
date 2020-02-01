@@ -74,6 +74,6 @@ const HorseSchema = new Schema({
 });
 
 //create model for title
-const Horse = mongoose.model('Horse', HorseSchema, 'horses');
+const Horse = mongoose.model('Horse', HorseSchema, 'horsesnew');
 
 module.exports = Horse;

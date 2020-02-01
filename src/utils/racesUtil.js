@@ -1,4 +1,6 @@
 const cheerio = require('cheerio');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 const Race = require('../models/Race');
 const Horse = require('../models/Horse');
@@ -44,7 +46,7 @@ exports.scrapeRacesFromPage = async (page) => {
     return races;
 };
 
-exports.upsertAll = (racesArray) => {
+exports.upsertAll = async (racesArray) => {
 
     const promiseArray = [];
 
@@ -68,10 +70,61 @@ exports.upsertAll = (racesArray) => {
         promiseArray.push(promise);
     }
 
-    Promise.all(promiseArray).then(() => {
-        // update lastUpdated value for horse
-        Horse.updateOne({ referenceNumber: racesArray[0].referenceNumber }, { lastTimeRaceScraped: Date.now() }, () => {});
-    }).catch((err) => {
-        console.error(err);
-    });
+    await Promise.all(promiseArray);
+
+    // update lastUpdated value for horse
+    await Horse.updateOne({ referenceNumber: racesArray[0].referenceNumber }, { lastTimeRaceScraped: Date.now() }, () => {});
+    await deleteDuplicates();
+};
+
+deleteDuplicates = async () => {
+    // gather races that have matching properties
+    const matchingSets = await Race.aggregate([
+        {
+            '$group': {
+                '_id': {
+                    // properties to match on
+                    'date': '$date',
+                    'raceNumber': '$raceNumber',
+                    'trackName': '$trackName',
+                    'finishPlace': '$finishPlace'
+                },
+                'uniqueIds': { '$addToSet': '$_id' },
+                'count': { '$sum': 1 }
+            }
+        },
+        {
+            '$match': {
+                'count': { '$gt': 1 }
+            }
+        }
+    ]);
+
+    if (matchingSets.length) {
+        const matchingRecordCount = getMatchingRacesNum(matchingSets);
+        console.log(`Race Duplicates Found - Removing ${matchingRecordCount} records`);
+
+        matchingSets.forEach((doc) => {
+
+            // convert id strings into mongo ObjectIds
+            const objectIds = doc.uniqueIds.map(id => new ObjectId(id));
+
+            // delete all races that
+            Race.deleteMany({
+                _id: { $in: objectIds }
+            }, (err) => {
+                if (err) { console.error("Error deleting matches:", err); }
+            });
+        });
+    }
+};
+
+getMatchingRacesNum = (matchingSets) => {
+    let count = 0;
+
+    for (let i=0; i<matchingSets.length; i++) {
+        count = count + matchingSets[i].uniqueIds.length;
+    }
+
+    return count;
 };
