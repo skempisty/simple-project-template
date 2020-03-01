@@ -40,14 +40,35 @@ exports.scrapeHorsesFromPage = async (page) => {
     return moreHorses;
 };
 
-exports.upsertAll = (horsesArray, pageNum) => {
+exports.upsertAll = (horsesArray, pageNum, raceYear) => {
 
     const promiseArray = [];
 
     for (let i=0; i<horsesArray.length; i++) {
         const query = { referenceNumber: horsesArray[i].referenceNumber };
         const promise = new Promise((resolve, reject) => {
-            Horse.updateOne(query, horsesArray[i], { upsert: true, setDefaultsOnInsert: true }, (err) => {
+            Horse.updateOne(
+                query,
+                {
+                    '$set': {
+                        horseName: horsesArray[i].horseName,
+                        referenceNumber: horsesArray[i].referenceNumber,
+                        rank: horsesArray[i].rank,
+                        starts: horsesArray[i].starts,
+                        win: horsesArray[i].win,
+                        place: horsesArray[i].place,
+                        show: horsesArray[i].show,
+                        earnings: horsesArray[i].earnings,
+                        perStart: horsesArray[i].perStart,
+                        winPercentage: horsesArray[i].winPercentage,
+                        topThree: horsesArray[i].topThree,
+                        topThreePercentage: horsesArray[i].topThreePercentage,
+                        speedFigure: horsesArray[i].speedFigure,
+                        lastUpdated: horsesArray[i].lastUpdated,
+                    },
+                    '$addToSet': { 'racedInYears': raceYear }
+                },
+                { upsert: true, setDefaultsOnInsert: true }, (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -83,4 +104,14 @@ exports.getAllHorseIdentifiers = async () => {
     } catch(err) {
         console.error(err);
     }
+};
+
+exports.selectScrapeYear = async (page, scrapeYear) => {
+    await puppeteerUtil.ensureExists(page, 'select#year');
+
+    await page.select('select#year', scrapeYear);
+
+    await puppeteerUtil.ensureExists(page, 'div#showLoad');
+
+    await page.waitForFunction("document.querySelector('div#showLoad').style.display === 'none'");
 };

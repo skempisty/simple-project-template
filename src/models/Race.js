@@ -41,6 +41,6 @@ const RaceSchema = new Schema({
 });
 
 //create model for title
-const Race = mongoose.model('Race', RaceSchema, 'racesnew');
+const Race = mongoose.model('Race', RaceSchema, 'races');
 
 module.exports = Race;

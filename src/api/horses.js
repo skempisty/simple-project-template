@@ -12,8 +12,8 @@ const captchaUtil = require('../utils/captchaUtil');
 const puppeteerUtil = require('../utils/puppeteerUtil');
 
 
-exports.scrapeAllHorses = async () => {
-    console.log('BEGIN GATHERING HORSES');
+exports.scrapeAllHorses = async (scrapeYear) => {
+    console.log(`BEGIN GATHERING HORSES FOR ${scrapeYear}`);
     // report scrape start timestamp
     console.log(moment().format('MMM Do h:mm a'));
 
@@ -33,6 +33,8 @@ exports.scrapeAllHorses = async () => {
     /// solve captcha if found otherwise continue
     await captchaUtil.waitForSelectorOrCaptcha(page, 'table#data');
 
+    await horsesUtil.selectScrapeYear(page, scrapeYear);
+
     // Get max pages
     const maxPages = await horsesUtil.getMaxPageNum(page);
     console.log(`${maxPages} pages to crawl`);
@@ -50,7 +52,7 @@ exports.scrapeAllHorses = async () => {
         }
 
         // upsert horses from page
-        horsesUtil.upsertAll(moreHorses, pageIndex);
+        horsesUtil.upsertAll(moreHorses, pageIndex, scrapeYear);
 
         await puppeteerUtil.ensureExists(page, 'div#Pagination ul a:last-child');
 

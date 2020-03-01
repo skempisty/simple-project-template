@@ -56,6 +56,10 @@ const HorseSchema = new Schema({
         type: String,
         required: true
     },
+    racedInYears: {
+        type: Array,
+        default: []
+    },
     createdAt: {
         type: Number,
         required: true,
@@ -74,6 +78,6 @@ const HorseSchema = new Schema({
 });
 
 //create model for title
-const Horse = mongoose.model('Horse', HorseSchema, 'horsesnew');
+const Horse = mongoose.model('Horse', HorseSchema, 'horses');
 
 module.exports = Horse;
