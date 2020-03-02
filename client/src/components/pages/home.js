@@ -1,6 +1,7 @@
 import React from 'react';
 
-import Constants from '../../utils/constants';
+import crawlHorses from '../api/crawlHorses';
+import crawlRaces from '../api/crawlRaces';
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -13,18 +14,12 @@ export default class Home extends React.Component {
         };
     }
 
-    async crawlHorses() {
-        const { horsesYear } = this.state;
-
-        const horses = await fetch(`${Constants.baseUrl}/api/horses/scrape?year=${horsesYear}`);
-        console.log(horses);
+    async handleCrawlHorses(horsesYear) {
+        await crawlHorses(horsesYear);
     }
 
-    async crawlAllRaces() {
-        const { horsesFromYear, horsesToYear } = this.state;
-
-        const races = await fetch(`${Constants.baseUrl}/api/races/scrape?horsesFromYear=${horsesFromYear}&horsesToYear=${horsesToYear}`);
-        console.log(races);
+    async handleCrawlRaces(horsesFromYear, horsesToYear) {
+        await crawlRaces(horsesFromYear, horsesToYear);
     }
 
     /**
@@ -84,7 +79,7 @@ export default class Home extends React.Component {
                     alignItems: 'center',
                     marginTop: '1em'
                 }}>
-                    <div style={{ fontWeight: 'bold' }}>Horses</div>
+                    <div style={{ fontWeight: 'bold'}}>Horses</div>
 
                     <div style={{ display: 'flex', marginTop: '0.5em' }}>
                         <span>Year:</span>
@@ -92,14 +87,14 @@ export default class Home extends React.Component {
                             value={horsesYear}
                             onChange={(e) => this.setState({ horsesYear: e.target.value })}
                         >
-                            {this.equibaseRecordYears.map((year) =>
-                                <option value={year}>{year}</option>
+                            {this.equibaseRecordYears.map((year, index) =>
+                                <option key={`equibase-year-select-${year}-${index}`} value={year}>{year}</option>
                             )}
                         </select>
 
                         <button
                             style={{ marginLeft: '1em', cursor: 'pointer', boxShadow: '1px 1px 5px grey' }}
-                            onClick={() => this.crawlHorses()}
+                            onClick={() => this.handleCrawlHorses(horsesYear)}
                         >
                             Crawl
                         </button>
@@ -121,8 +116,8 @@ export default class Home extends React.Component {
                             value={horsesFromYear}
                             onChange={(e) => this.setState({ horsesFromYear: e.target.value })}
                         >
-                            {this.availableFromYears.map((year) =>
-                                <option value={year}>{year}</option>
+                            {this.availableFromYears.map((year, index) =>
+                                <option key={`from-year-select-${year}-${index}`} value={year}>{year}</option>
                             )}
                         </select>
 
@@ -131,14 +126,14 @@ export default class Home extends React.Component {
                             value={horsesToYear}
                             onChange={(e) => this.setState({ horsesToYear: e.target.value })}
                         >
-                            {this.availableToYears.map((year) =>
-                                <option value={year}>{year}</option>
+                            {this.availableToYears.map((year, index) =>
+                                <option key={`to-year-select-${year}-${index}`} value={year}>{year}</option>
                             )}
                         </select>
 
                         <button
                             style={{ marginLeft: '1em', cursor: 'pointer', boxShadow: '1px 1px 5px grey' }}
-                            onClick={() => this.crawlAllRaces()}
+                            onClick={() => this.handleCrawlRaces(horsesFromYear, horsesToYear)}
                         >
                             Crawl
                         </button>
