@@ -107,6 +107,9 @@ exports.getAllHorseIdentifiers = async () => {
 };
 
 exports.selectScrapeYear = async (page, scrapeYear) => {
+    // wait an arbitrary amount of time to make sure year selector is loaded properly
+    await page.waitFor(5000);
+
     await puppeteerUtil.ensureExists(page, 'select#year');
 
     await page.select('select#year', scrapeYear);

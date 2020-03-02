@@ -40,9 +40,8 @@ exports.scrapeAllHorses = async (scrapeYear) => {
     console.log(`${maxPages} pages to crawl`);
 
     let pageIndex = 1;
-    let horsesAllScraped = false;
 
-    while (!horsesAllScraped) {
+    while (pageIndex <= maxPages) {
         // grab horses from page
         const moreHorses = await horsesUtil.scrapeHorsesFromPage(page);
 
@@ -54,22 +53,52 @@ exports.scrapeAllHorses = async (scrapeYear) => {
         // upsert horses from page
         horsesUtil.upsertAll(moreHorses, pageIndex, scrapeYear);
 
-        await puppeteerUtil.ensureExists(page, 'div#Pagination ul a:last-child');
+        if (pageIndex < maxPages) {
+            await puppeteerUtil.ensureExists(page, 'div#Pagination ul a:last-child');
 
-        try {
-            // click next page btn
-            await page.click('div#Pagination ul a:last-child');
-            // wait for next page number to be red
-            await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex}]`, { timeout: 10000 });
+            let pageNavigated = false;
 
+            while (!pageNavigated) {
+                try {
+                    /**
+                     * 'app' seems to be an exposed page controller on the global scope for the equibase horses table.
+                     * We can use the pageNav method to navigate pages instead of having Chromium click the 'next page'
+                     * button. Using this method allows us to skip broken horses table pages since clicking the 'next
+                     * page' button does not work when the horses table encounters a broken page.
+                     */
+                    await page.evaluate((pageIndex) => {
+                        app.events.pageNav(pageIndex + 1);
+                    }, pageIndex);
+                } catch (error) {
+                    /**
+                     * do nothing. app.events.pageNav() throws an error in browser that causes page.evalute to throw
+                     * an error. This must be handled or the app crashes.
+                     */
+                }
+
+                try {
+                    // wait for next page number to be red
+                    await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex + 1}]`, { timeout: 5000 });
+
+                    pageNavigated = true;
+                } catch (error) {
+                    /**
+                     * equibase horses table is bugged in rare spots. Some pages of the horses table simply do not load
+                     * and the page hangs. Catching an error from the try block skips the broken table page.
+                     */
+                    console.log("skipping page");
+                }
+
+                pageIndex++;
+            }
+        } else {
             pageIndex++;
-        } catch (error) {
-            console.log('DONE GATHERING HORSES');
-            // report end of scrape timestamp
-            console.log(moment().format('MMM Do h:mm a'));
-            horsesAllScraped = true;
         }
     }
+
+    console.log('DONE GATHERING HORSES');
+    // report end of scrape timestamp
+    console.log(moment().format('MMM Do h:mm a'));
 
     browser.close();
 };
