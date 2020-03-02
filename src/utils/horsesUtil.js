@@ -98,9 +98,24 @@ exports.getMaxPageNum = async (page) => {
     return $(`div#Pagination ul a:nth-child(${numAnchors})`).text();
 };
 
-exports.getAllHorseIdentifiers = async () => {
+exports.getHorseIdentifiers = async (fromYear, toYear) => {
+
+    let yearRange = ['2020'];
+
+    if (fromYear <= toYear) {
+
+        let year = fromYear;
+        yearRange = [];
+
+        while (year <= toYear) {
+            yearRange = yearRange.concat(`${year}`);
+
+            year++;
+        }
+    }
+
     try {
-        return await Horse.find({}, 'referenceNumber horseName').sort( { lastTimeRaceScraped: 1 } );
+        return await Horse.find({ racedInYears: { $in: yearRange }}, 'referenceNumber horseName').sort( { lastTimeRaceScraped: 1 } );
     } catch(err) {
         console.error(err);
     }

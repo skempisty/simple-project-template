@@ -13,8 +13,8 @@ const captchaUtil = require('../utils/captchaUtil');
 const puppeteerUtil = require('../utils/puppeteerUtil');
 
 
-exports.scrapeAllRaces = async () => {
-    console.log('BEGIN GATHERING RACES');
+exports.scrapeAllRaces = async (fromYear, toYear) => {
+    console.log(`BEGIN GATHERING RACES, ${fromYear} - ${toYear}`);
     // display scrape start datetime
     console.log(moment().format('MMM Do h:mm a'));
 
@@ -28,15 +28,15 @@ exports.scrapeAllRaces = async () => {
     await puppeteerUtil.preparePageForBotTests(page);
 
     // get all horses names, referenceNumbers
-    const horseIdentifiers = await horsesUtil.getAllHorseIdentifiers();
-    console.log(`Found ${horseIdentifiers.length} horses.. gulp`)
+    const horseIdentifiers = await horsesUtil.getHorseIdentifiers(fromYear, toYear);
+    console.log(`Found ${horseIdentifiers.length} horses.. gulp`);
 
     for (let i=0; i<horseIdentifiers.length; i++) {
         const equibaseUrl = `https://www.equibase.com/profiles/Results.cfm?type=Horse&refno=${horseIdentifiers[i].referenceNumber}&registry=T&rbt=TB`;
 
         let pageNavigated = false;
 
-        /*
+        /**
         * page navigation fails on occasion due to bloated equibase website pages.
         * this retries page navigation until success to avoid stopping crawler
         */

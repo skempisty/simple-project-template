@@ -20,7 +20,10 @@ router.get('/horses/scrape', async (req, res) => {
  * Route to scrape all races from horses in horses collection by looping through all their referenceNumbers
  */
 router.get('/races/scrape', async (req, res) => {
-    const scrapedRaces = await api.races.scrapeAllRaces();
+    const fromYear = req.query.horsesFromYear;
+    const toYear = req.query.horsesToYear;
+
+    const scrapedRaces = await api.races.scrapeAllRaces(fromYear, toYear);
     res.send(scrapedRaces);
 });
 

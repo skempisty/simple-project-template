@@ -57,7 +57,7 @@ const HorseSchema = new Schema({
         required: true
     },
     racedInYears: {
-        type: Array,
+        type: [String],
         default: []
     },
     createdAt: {
