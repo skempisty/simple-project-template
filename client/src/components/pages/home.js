@@ -2,6 +2,7 @@ import React from 'react';
 
 import crawlHorses from '../api/crawlHorses';
 import crawlRaces from '../api/crawlRaces';
+import deleteDuplicates from '../api/deleteDuplicates';
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -20,6 +21,10 @@ export default class Home extends React.Component {
 
     async handleCrawlRaces(horsesFromYear, horsesToYear) {
         await crawlRaces(horsesFromYear, horsesToYear);
+    }
+
+    async handleDeleteDuplicates() {
+        await deleteDuplicates();
     }
 
     /**
@@ -138,6 +143,23 @@ export default class Home extends React.Component {
                             Crawl
                         </button>
                     </div>
+                </div>
+
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '1em'
+                }}>
+                    <div style={{ fontWeight: 'bold' }}>Duplicate Handling</div>
+
+                    <button
+                        style={{ marginTop: '0.5em', cursor: 'pointer', boxShadow: '1px 1px 5px grey' }}
+                        onClick={() => this.handleDeleteDuplicates()}
+                    >
+                        Delete
+                    </button>
                 </div>
             </div>
         )

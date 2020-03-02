@@ -74,10 +74,9 @@ exports.upsertAll = async (racesArray) => {
 
     // update lastUpdated value for horse
     await Horse.updateOne({ referenceNumber: racesArray[0].referenceNumber }, { lastTimeRaceScraped: Date.now() }, () => {});
-    deleteDuplicates();
 };
 
-deleteDuplicates = async () => {
+exports.deleteDuplicates = async () => {
     // gather races that have matching properties
     const matchingSets = await Race.aggregate([
         {
@@ -116,6 +115,8 @@ deleteDuplicates = async () => {
                 if (err) { console.error("Error deleting matches:", err); }
             });
         });
+    } else {
+        console.log(`No duplicates found! Probably a good thing?`);
     }
 };
 

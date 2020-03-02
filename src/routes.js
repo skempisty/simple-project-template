@@ -32,8 +32,17 @@ router.get('/races/scrape', async (req, res) => {
  */
 router.get('/races/scrape/:referenceNumber', async (req, res) => {
     const referenceNumber = req.params.referenceNumber;
+
     const scrapedRaces = await api.races.scrapeRacesFromHorse(referenceNumber);
     res.send(scrapedRaces);
+});
+
+/**
+ * Route to delete all duplicate races in the DB. Duplicate race consists of an equal finishing place, date, track,
+ * and race number
+ */
+router.get('/races/deleteduplicates', async (req, res) => {
+    await api.races.deleteDuplicates();
 });
 
 module.exports = router;

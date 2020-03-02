@@ -89,3 +89,9 @@ exports.scrapeRacesFromHorse = async (referenceNumber) => {
 
     return races;
 };
+
+exports.deleteDuplicates = async () => {
+    console.log(`LET\'S REMOVE RACE DUPLICATES!`);
+
+    await racesUtil.deleteDuplicates();
+};
