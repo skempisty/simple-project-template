@@ -78,7 +78,7 @@ exports.scrapeAllHorses = async (scrapeYear) => {
 
                 try {
                     // wait for next page number to be red
-                    await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex + 1}]`, { timeout: 5000 });
+                    await page.waitForXPath(`//div[@id='Pagination']/ul//span[@style="color:red" and text()=${pageIndex + 1}]`, { timeout: 10000 });
 
                     pageNavigated = true;
                 } catch (error) {
