@@ -31,6 +31,9 @@ exports.scrapeAllRaces = async (fromYear, toYear) => {
     const horseIdentifiers = await horsesUtil.getHorseIdentifiers(fromYear, toYear);
     console.log(`Found ${horseIdentifiers.length} horses.. gulp`);
 
+    const notScrapedNum = await horsesUtil.getUnscrapedHorseNum(fromYear, toYear);
+    console.log(`${notScrapedNum} of that set still need scraping`);
+
     for (let i=0; i<horseIdentifiers.length; i++) {
         const equibaseUrl = `https://www.equibase.com/profiles/Results.cfm?type=Horse&refno=${horseIdentifiers[i].referenceNumber}&registry=T&rbt=TB`;
 

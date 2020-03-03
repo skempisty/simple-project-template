@@ -100,6 +100,29 @@ exports.getMaxPageNum = async (page) => {
 
 exports.getHorseIdentifiers = async (fromYear, toYear) => {
 
+    const yearRange = buildYearsArray(fromYear, toYear);
+
+    try {
+        return await Horse.find({ racedInYears: { $in: yearRange }}, 'referenceNumber horseName').sort({ lastTimeRaceScraped: 1 });
+    } catch(err) {
+        console.error(err);
+    }
+};
+
+exports.getUnscrapedHorseNum = async (fromYear, toYear) => {
+
+    const yearRange = buildYearsArray(fromYear, toYear);
+
+    try {
+        const horses = await Horse.find({ racedInYears: { $in: yearRange }, lastTimeRaceScraped: 0 }, 'referenceNumber horseName');
+
+        return horses.length;
+    } catch(err) {
+        console.error(err);
+    }
+};
+
+const buildYearsArray = (fromYear, toYear) => {
     let yearRange = ['2020'];
 
     if (fromYear <= toYear) {
@@ -114,11 +137,7 @@ exports.getHorseIdentifiers = async (fromYear, toYear) => {
         }
     }
 
-    try {
-        return await Horse.find({ racedInYears: { $in: yearRange }}, 'referenceNumber horseName').sort( { lastTimeRaceScraped: 1 } );
-    } catch(err) {
-        console.error(err);
-    }
+    return yearRange;
 };
 
 exports.selectScrapeYear = async (page, scrapeYear) => {
