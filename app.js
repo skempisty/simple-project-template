@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //connect to the database
-mongoose.connect(process.env.MONGODB_OREGON_URL,
+mongoose.connect(process.env.MONGODB_URL,
     {
         // required to silence deprecation warning in stdout (https://github.com/Automattic/mongoose/issues/8156)
         useUnifiedTopology: true,
