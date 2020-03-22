@@ -13,6 +13,7 @@ router.get('/horses/scrape', async (req, res) => {
     const scrapeYear = req.query.year;
 
     await api.horses.scrapeAllHorses(scrapeYear);
+
     res.send('done scraping horses!');
 });
 
@@ -24,6 +25,7 @@ router.get('/races/scrape', async (req, res) => {
     const toYear = req.query.horsesToYear;
 
     const scrapedRaces = await api.races.scrapeAllRaces(fromYear, toYear);
+
     res.send(scrapedRaces);
 });
 
@@ -34,6 +36,7 @@ router.get('/races/scrape/:referenceNumber', async (req, res) => {
     const referenceNumber = req.params.referenceNumber;
 
     const scrapedRaces = await api.races.scrapeRacesFromHorse(referenceNumber);
+
     res.send(scrapedRaces);
 });
 
