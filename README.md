@@ -24,6 +24,8 @@ Go to https://brew.sh/ for installation instructions
 - NPM `brew install npm`
 - Python (2 or 3) `brew install python`
 
+- Yarn `npm install -g yarn`
+
 #### Run from terminal
 
 1. `npm install`
