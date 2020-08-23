@@ -18,10 +18,12 @@ exports.scrapeAllRaces = async (fromYear, toYear) => {
     // display scrape start datetime
     console.log(moment().format('MMM Do h:mm a'));
 
-    // Start puppeteer and create master browser object
-    const browser = await puppeteer.launch();
-    // uncomment below and comment above to watch puppeteer
-    // const browser = await puppeteer.launch({ headless: false });
+    /**
+     * Start puppeteer and create master browser object.
+     * headless mode unreliable
+     */
+    const browser = await puppeteer.launch({ headless: false });
+
     const page = await browser.newPage();
 
     // engage anti bot detection countermeasures
