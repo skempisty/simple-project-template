@@ -10,7 +10,7 @@
 /build
 
 # misc
-.idea/*
+.idea
 .DS_Store
 .env
 captcha_key.png

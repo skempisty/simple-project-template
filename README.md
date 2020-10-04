@@ -1,28 +1,11 @@
-       _____,,;;;`;              ;';;;,,_____
-    ,~(  )  , )~~\|   HORSIES    |/~~( ,  (  )~;
-    ' / / --`--,      CRAWLER       .--'-- \ \ `
-     /  \    | '                    ` |    /  \
+# Simple-Project-Template
+
+This is a template for a basic unirepo for a standard MERN stack application. Contains
+scaffolding code for front and backend.
 
 ## Development
 
-#### Clone website
-
-1. Click the green clone or download button
-2. Copy the clone path (use SSH not HTTPS)
-3. Navigate to file system where you want horsies-crawler
-4. `git clone <CLONE PATH> horsies-crawler`
-5. `cd horsies-crawler`
-6. Ready to go!
-
 #### Install dependencies
-
-Best way to install dependencies is through `Homebrew` - a dependency package manager.
-
-Go to https://brew.sh/ for installation instructions
-
-- NodeJs `brew install node`
-- NPM `brew install npm`
-- Python (2 or 3) `brew install python`
 
 - Yarn `npm install -g yarn`
 
@@ -30,14 +13,7 @@ Go to https://brew.sh/ for installation instructions
 
 1. `npm install`
 
-Run npm install first. This installs node modules, initializes a
-python venv connection, and installs python modules.
-
-2. `source env/bin/activate`
-
-This activates the python environment required to execute python scripts used by horsies crawler.
-
-3. `npm run dev`
+2. `npm run dev`
 
 Starts development server (port 5000) and frontend app (port 3000).
 
